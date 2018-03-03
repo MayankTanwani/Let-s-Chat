@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                     FirebaseUser user = mFirebaseAuth.getCurrentUser();
                     final List<AuthUI.IdpConfig> signInMethods = Arrays.asList(
                             new AuthUI.IdpConfig.EmailBuilder().build(),
+                            //new AuthUI.IdpConfig.PhoneBuilder().build(),
                             new AuthUI.IdpConfig.GoogleBuilder().build());
                     if (user != null) {
                         String username = user.getDisplayName();
@@ -170,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                                         .createSignInIntentBuilder()
                                         .setIsSmartLockEnabled(false)
                                         .setAvailableProviders(signInMethods)
+                                        .setTheme(R.style.LoginTheme)
+                                        //.setLogo(0)
                                         .build(),
                                 RC_SIGN_IN);
                     }
@@ -312,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     private void onSignedOutCleanup()
     {
         mUsername = ANONYMOUS;
-        mMessageAdapter.swapArrayList(new ArrayList<ChatMessage>(0));
+        //mMessageAdapter.swapArrayList(new ArrayList<ChatMessage>(0));
         detachReadListener();
         mChatMessages.clear();
     }
