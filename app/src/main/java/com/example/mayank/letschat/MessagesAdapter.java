@@ -14,6 +14,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
+import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
+
 /**
  * Created by mayank on 3/3/18.
  */
@@ -106,14 +108,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         ImageView photoImageView;
-        TextView messageTextView;
+        EmojiconTextView messageTextView;
         TextView authorTextView;
         CardView cardView;
         String imageRes=null;
         public ViewHolder(View convertView) {
             super(convertView);
             photoImageView = (ImageView) convertView.findViewById(R.id.photoImageView);
-            messageTextView = (TextView) convertView.findViewById(R.id.messageTextView);
+            messageTextView = (EmojiconTextView) convertView.findViewById(R.id.messageTextView);
             authorTextView = (TextView) convertView.findViewById(R.id.nameTextView);
             cardView = (CardView)convertView.findViewById(R.id.cardView);
             photoImageView.setOnClickListener(this);

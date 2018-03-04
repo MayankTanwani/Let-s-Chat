@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -39,8 +40,10 @@
                 android:id="@+id/photoPickerButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginBottom="4dp"
                 android:layout_gravity="bottom"
                 android:src="@drawable/icon_image" />
+
 
             <android.support.v7.widget.CardView
                 android:layout_width="0dp"
@@ -49,18 +52,31 @@
                 android:layout_weight="1"
                 android:layout_margin="4dp"
                 app:cardCornerRadius="20dp">
-            <EditText
-                android:id="@+id/messageEditText"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:background="@null"
-                android:visibility="visible"
-                android:padding="4dp"
-                android:layout_marginLeft="4dp"
-                android:hint="Type your Message"
-                android:minHeight="48dp"
-                android:layout_height="wrap_content"
-                />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_margin="8dp"
+                    android:id="@+id/emojiIcon"
+                    android:layout_gravity="bottom"
+                    android:src="@drawable/ic_tag_faces_light_blue_500_48dp"/>
+                <hani.momanii.supernova_emoji_library.Helper.EmojiconEditText
+                    android:id="@+id/messageEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:visibility="visible"
+                    android:padding="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:hint="Type your Message"
+                    android:minHeight="48dp"
+                    emojicon:emojiconSize="28sp"
+                    />
+                </LinearLayout>
             </android.support.v7.widget.CardView>
             <ImageView
                 android:id="@+id/sendButton"
@@ -68,6 +84,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="bottom"
                 android:enabled="false"
+                android:layout_marginBottom="4dp"
                 android:src="@drawable/icon_send" />
 
         </LinearLayout>

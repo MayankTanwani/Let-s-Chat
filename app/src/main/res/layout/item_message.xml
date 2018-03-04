@@ -5,6 +5,7 @@
     android:layout_marginRight="100dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/constraintLayout"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     xmlns:cardview="http://schemas.android.com/tools">
 
     <android.support.v7.widget.CardView
@@ -41,11 +42,11 @@
                 cardview:targetApi="lollipop"
                 />
 
-            <TextView
+            <hani.momanii.supernova_emoji_library.Helper.EmojiconTextView
                 android:id="@+id/messageTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:paddingTop="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="Message"
@@ -53,7 +54,9 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Widget.PopupMenu.Small"
                 android:visibility="visible"
                 app:layout_constraintStart_toStartOf="@+id/nameTextView"
-                app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
+                app:layout_constraintTop_toBottomOf="@+id/nameTextView"
+                emojicon:emojiconSize="28sp"
+                />
 
             <ImageView
                 android:id="@+id/photoImageView"

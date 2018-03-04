@@ -43,6 +43,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
+import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
+
 public class MainActivity extends AppCompatActivity implements MessagesAdapter.ListItemClickListener{
 
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -55,10 +58,12 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     private MessagesAdapter mMessageAdapter;
     private ProgressBar mProgressBar;
     private ImageView mPhotoPickerButton;
-    private EditText mMessageEditText;
+    private EmojiconEditText mMessageEditText;
     private ImageView mSendButton;
     private TouchImageView mLargeImage;
     private RelativeLayout mRelativeLayout;
+    private ImageView mEmojiIcon;
+    private EmojIconActions mEmojIconActions;
     ArrayList<ChatMessage> mChatMessages;
     public LinearLayoutManager mLayoutManager;
     private static String mUsername;
@@ -82,10 +87,28 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mMessageListView = (RecyclerView) findViewById(R.id.messageListView);
         mPhotoPickerButton = (ImageView) findViewById(R.id.photoPickerButton);
-        mMessageEditText = (EditText) findViewById(R.id.messageEditText);
+        mMessageEditText = (EmojiconEditText) findViewById(R.id.messageEditText);
         mSendButton = (ImageView) findViewById(R.id.sendButton);
         mLargeImage = (TouchImageView)findViewById(R.id.largeImage);
         mRelativeLayout = (RelativeLayout)findViewById(R.id.relativeLayout);
+        mEmojiIcon = (ImageView)findViewById(R.id.emojiIcon);
+        mEmojIconActions = new EmojIconActions(this,mRelativeLayout,mMessageEditText,mEmojiIcon,
+        "#03A9F4",
+        "#ffffff",
+        "#f4f4f4");
+        mEmojIconActions.ShowEmojIcon();
+        mEmojIconActions.setIconsIds(R.drawable.ic_keyboard_light_blue_500_48dp,R.drawable.ic_tag_faces_light_blue_500_48dp);
+        mEmojIconActions.setKeyboardListener(new EmojIconActions.KeyboardListener() {
+            @Override
+            public void onKeyboardOpen() {
+                Log.e(TAG, "Keyboard opened!");
+            }
+
+            @Override
+            public void onKeyboardClose() {
+                Log.e(TAG, "Keyboard closed");
+            }
+        });
 
         //Initialiaze Recycler View and Adapters
         mChatMessages = new ArrayList<>();
