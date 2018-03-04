@@ -1,5 +1,8 @@
 package com.example.mayank.letschat;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -278,6 +281,15 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
             }
         });
     }
+
+    @Override
+    public void onListItemLongClick(String messageText) {
+        ClipboardManager clipboardManager = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("chat Message",messageText);
+        clipboardManager.setPrimaryClip(clipData);
+        Toast.makeText(this, "Copied To Clipboard", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onBackPressed() {
         if(mLargeImage.getVisibility() == View.GONE)

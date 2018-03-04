@@ -35,6 +35,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     //Click Listener
     public interface ListItemClickListener{
         void onListItemClick(String imageRes);
+        void onListItemLongClick(String messageText);
     }
 
     public MessagesAdapter(ArrayList<ChatMessage> messages,ListItemClickListener listener)
@@ -88,6 +89,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             holder.messageTextView.setVisibility(View.VISIBLE);
             holder.photoImageView.setVisibility(View.GONE);
             holder.messageTextView.setText(message.getText());
+            holder.messageText = message.getText();
         }
         holder.authorTextView.setText(message.getName());
     }
@@ -106,12 +108,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         ImageView photoImageView;
         EmojiconTextView messageTextView;
         TextView authorTextView;
         CardView cardView;
         String imageRes=null;
+        String messageText = null;
         public ViewHolder(View convertView) {
             super(convertView);
             photoImageView = (ImageView) convertView.findViewById(R.id.photoImageView);
@@ -119,6 +122,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             authorTextView = (TextView) convertView.findViewById(R.id.nameTextView);
             cardView = (CardView)convertView.findViewById(R.id.cardView);
             photoImageView.setOnClickListener(this);
+            convertView.setOnLongClickListener(this);
         }
 
         @Override
@@ -129,6 +133,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         public void setRes(String imageRes)
         {
             this.imageRes = imageRes;
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if(messageText!=null)
+            {
+                listener.onListItemLongClick(messageText);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

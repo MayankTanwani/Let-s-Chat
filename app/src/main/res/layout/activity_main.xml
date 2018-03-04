@@ -51,7 +51,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:layout_margin="4dp"
-                app:cardCornerRadius="20dp">
+                app:cardCornerRadius="24dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
     <com.ortiz.touchview.TouchImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:padding="8dp"
         android:visibility="gone"
         android:id="@+id/largeImage"/>
 </FrameLayout>
