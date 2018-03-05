@@ -103,4 +103,27 @@
         android:padding="8dp"
         android:visibility="gone"
         android:id="@+id/largeImage"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabGallery"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="64dp"
+        android:layout_marginLeft="12dp"
+        android:scaleType="center"
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/colorImage"
+        android:visibility="gone"
+        android:src="@drawable/ic_collections_white_24dp" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabCamera"
+        android:scaleType="center"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="108dp"
+        android:backgroundTint="@color/colorImage"
+        android:layout_marginLeft="12dp"
+        android:layout_gravity="bottom"
+        android:visibility="gone"
+        android:src="@drawable/ic_camera_alt_white_24dp" />
 </FrameLayout>

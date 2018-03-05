@@ -1,12 +1,19 @@
 package com.example.mayank.letschat;
 
+import android.*;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,6 +49,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.ortiz.touchview.TouchImageView;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     public static final int DEFAULT_MSG_LENGTH = 1000;
     public static final int RC_SIGN_IN = 1;
     public static final int RC_PHOTO_PICKER = 2;
+    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
+    private static final int PERMISSION_REQUEST_CODE = 21 ;
+    String mTempPhotoPath = null;
 
     private RecyclerView mMessageListView;
     private MessagesAdapter mMessageAdapter;
@@ -70,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     ArrayList<ChatMessage> mChatMessages;
     public LinearLayoutManager mLayoutManager;
     private static String mUsername;
+    private FloatingActionButton mFabCamera;
+    private FloatingActionButton mFabGallery;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mMessagesDatabaseReference;
@@ -94,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         mSendButton = (ImageView) findViewById(R.id.sendButton);
         mLargeImage = (TouchImageView)findViewById(R.id.largeImage);
         mRelativeLayout = (RelativeLayout)findViewById(R.id.relativeLayout);
+        mFabCamera = (FloatingActionButton)findViewById(R.id.fabCamera);
+        mFabGallery = (FloatingActionButton)findViewById(R.id.fabGallery);
+
         mEmojiIcon = (ImageView)findViewById(R.id.emojiIcon);
         mEmojIconActions = new EmojIconActions(this,mRelativeLayout,mMessageEditText,mEmojiIcon,
         "#03A9F4",
@@ -128,10 +145,21 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/jpeg");
-                i.putExtra(i.EXTRA_LOCAL_ONLY,true);
-                startActivityForResult(Intent.createChooser(i,"Complete action using : "),RC_PHOTO_PICKER);
+                triggerFab();
+            }
+        });
+        mFabGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                triggerFab();
+                selectFromGallery();
+            }
+        });
+        mFabCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                triggerFab();
+                setupPermission();
             }
         });
 
@@ -222,6 +250,42 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         mChatMessages.clear();
     }
 
+    public void launchCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //takePictureIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the temporary File where the photo should go
+            File photoFile = null;
+
+            try {
+                photoFile = BitmapUtils.createTempImageFile(this);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+
+                // Get the path of the temporary file
+                mTempPhotoPath = photoFile.getAbsolutePath();
+
+                // Get the content URI for the image file
+
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        FILE_PROVIDER_AUTHORITY,
+                        photoFile);
+
+                //resolvePermission(takePictureIntent,MainActivity.this,photoURI);
+                // Add the URI so the camera can store the image
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.putExtra("uri-string",photoURI.toString());
+                Log.d(TAG,"Uri : " + photoURI);
+                // Launch the camera activity
+                startActivityForResult(takePictureIntent, RC_PHOTO_PICKER);
+            }
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -238,7 +302,13 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
             }
         }else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK)
         {
-            Uri selectedImageUri = data.getData();
+            Uri selectedImageUri;
+            if(mTempPhotoPath != null)
+                selectedImageUri = Uri.fromFile(new File(mTempPhotoPath));
+            else
+                selectedImageUri = data.getData();
+            mTempPhotoPath = null;
+            Log.v(TAG,"Uri result : " + selectedImageUri);
             StorageReference reference = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
             reference.putFile(selectedImageUri).addOnSuccessListener(this,new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -318,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                     {
                         mMessageAdapter.swapArrayList(mChatMessages);
                         mMessageListView.smoothScrollToPosition(mMessageAdapter.getItemCount() - 1);
-                        Log.v(TAG,mChatMessages.size()+"");
+                        //Log.v(TAG,mChatMessages.size()+"");
                     }
                 }
 
@@ -370,4 +440,56 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         }
     }
 
+    public void triggerFab()
+    {
+        if(mFabGallery.getVisibility() == View.VISIBLE)
+        {
+            mFabGallery.setVisibility(View.GONE);
+            mFabCamera.setVisibility(View.GONE);
+        }
+        else
+        {
+            mFabCamera.setVisibility(View.VISIBLE);
+            mFabGallery.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void selectFromGallery()
+    {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.setType("image/jpeg");
+        i.putExtra(i.EXTRA_LOCAL_ONLY,true);
+        startActivityForResult(Intent.createChooser(i,"Complete action using : "),RC_PHOTO_PICKER);
+    }
+
+    public void setupPermission() {
+        if ((ContextCompat.checkSelfPermission(MainActivity.this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            String[] permissionNeeded = new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            requestPermissions(permissionNeeded, PERMISSION_REQUEST_CODE);
+        } else {
+            launchCamera();
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode)
+        {
+            case PERMISSION_REQUEST_CODE : {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+
+                    launchCamera();
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "Permission not granted", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+
+        }
+    }
 }

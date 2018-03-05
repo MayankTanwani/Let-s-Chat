@@ -7,4 +7,5 @@
     <color name="cyanA100">#00e5ff</color>
     <color name="greenA100">#69f0ae</color>
     <color name="colorSecondary">#000</color>
+    <color name="colorImage">#009C87</color>
 </resources>
