@@ -304,10 +304,10 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         {
             Uri selectedImageUri;
             if(mTempPhotoPath != null)
+
                 selectedImageUri = Uri.fromFile(new File(mTempPhotoPath));
             else
                 selectedImageUri = data.getData();
-            mTempPhotoPath = null;
             Log.v(TAG,"Uri result : " + selectedImageUri);
             StorageReference reference = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
             reference.putFile(selectedImageUri).addOnSuccessListener(this,new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -318,6 +318,11 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                     mMessagesDatabaseReference.push().setValue(chatMessage);
                 }
             });
+            if(mTempPhotoPath!=null)
+            {
+                (new File(mTempPhotoPath)).delete();
+                mTempPhotoPath = null;
+            }
 
         }
     }
