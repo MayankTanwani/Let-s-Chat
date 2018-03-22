@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
 
         //Initialize Firebase instances
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        //mFirebaseDatabase.setPersistenceEnabled(true);
+        mFirebaseDatabase.setPersistenceEnabled(true);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
         mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("messages");
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
         if(mAuthStateListener != null)
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         detachReadListener();
-        mChatMessages.clear();
+        mChatMessages = new ArrayList<>();
     }
 
     public void launchCamera() {
@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     {
         mUsername = username;
         mMessageAdapter.changeUserName();
-        //mMessageAdapter.swapArrayList(new ArrayList<ChatMessage>(0));
+        mMessageAdapter.swapArrayList(new ArrayList<ChatMessage>(0));
         attachReadListener();
     }
 
@@ -393,7 +393,6 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                     {
                         mMessageAdapter.swapArrayList(mChatMessages);
                         mMessageListView.smoothScrollToPosition(mMessageAdapter.getItemCount() - 1);
-                        //Log.v(TAG,mChatMessages.size()+"");
                     }
                 }
 

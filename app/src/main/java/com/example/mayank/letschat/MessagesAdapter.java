@@ -104,7 +104,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     public void swapArrayList(ArrayList<ChatMessage> newMessages)
     {
-        messages = newMessages;
+        this.messages = newMessages;
         notifyDataSetChanged();
     }
 
