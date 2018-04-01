@@ -36,7 +36,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -44,6 +46,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -93,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mChatPhotosStorageReference;
 
+static {
+    FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,7 +136,6 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                 Log.e(TAG, "Keyboard closed");
             }
         });
-
         //Initialiaze Recycler View and Adapters
         mChatMessages = new ArrayList<>();
         mLayoutManager = new LinearLayoutManager(this);
@@ -165,8 +171,8 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
 
         //Initialize Firebase instances
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.setPersistenceEnabled(true);
         mFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseMessaging.getInstance().subscribeToTopic("chats");
         mFirebaseStorage = FirebaseStorage.getInstance();
         mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("messages");
         mChatPhotosStorageReference = mFirebaseStorage.getReference().child("chat_photos");
@@ -198,8 +204,13 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
             public void onClick(View view) {
                 if(!(mMessageEditText.getText().toString().equals("") || mMessageEditText.getText().toString().isEmpty()))
                 {
-                    ChatMessage chatMessage = new ChatMessage(mMessageEditText.getText().toString(), mUsername, null);
-                    mMessagesDatabaseReference.push().setValue(chatMessage);
+                    final ChatMessage chatMessage = new ChatMessage(mMessageEditText.getText().toString(), mUsername, null);
+                    mMessagesDatabaseReference.push().setValue(chatMessage).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            (new NotificationServices.sendNotifications()).execute(chatMessage.getName(),chatMessage.getText());
+                        }
+                    });
                 }
                 // Clear input box
                 mMessageEditText.setText("");
@@ -244,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
     @Override
     protected void onPause() {
         super.onPause();
+
         if(mAuthStateListener != null)
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         detachReadListener();
@@ -314,8 +326,13 @@ public class MainActivity extends AppCompatActivity implements MessagesAdapter.L
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    ChatMessage chatMessage = new ChatMessage(null,mUsername,downloadUrl.toString());
-                    mMessagesDatabaseReference.push().setValue(chatMessage);
+                    final ChatMessage chatMessage = new ChatMessage(null,mUsername,downloadUrl.toString());
+                    mMessagesDatabaseReference.push().setValue(chatMessage).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            (new NotificationServices.sendNotifications()).execute(chatMessage.getName(),"Sent an image");
+                        }
+                    });;
                 }
             });
             if(mTempPhotoPath!=null)
